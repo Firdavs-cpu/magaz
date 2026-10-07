@@ -35,7 +35,7 @@
     <div class="product-area">
         <div class="section-heading">
             <h2>{% if search_query %}Результаты поиска{% else %}В каталоге{% endif %}</h2>
-            <span>{{ products|length }} позиций</span>
+            <span>{{ page_obj.paginator.count }} позиций</span>
         </div>
         <div class="product-grid">
             {% for product in products %}
@@ -68,6 +68,21 @@
                 <p class="empty-state">Ничего не нашлось. Попробуйте изменить запрос или категорию.</p>
             {% endfor %}
         </div>
+        {% if page_obj.has_other_pages %}
+            <nav class="pagination" aria-label="Страницы каталога">
+                {% if page_obj.has_previous %}
+                    <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if search_query %}q={{ search_query|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>
+                {% else %}
+                    <span class="disabled">Назад</span>
+                {% endif %}
+                <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if search_query %}q={{ search_query|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Вперёд</a>
+                {% else %}
+                    <span class="disabled">Вперёд</span>
+                {% endif %}
+            </nav>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

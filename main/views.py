@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import Http404
 from django.db.models import Q
@@ -27,9 +28,11 @@ def product_list(request):
 			| Q(description__icontains=search_query)
 			| Q(category__name__icontains=search_query)
 		)
+	page_obj = Paginator(products, 12).get_page(request.GET.get("page"))
 
 	return render(request, "main/product_list.html", {
-		"products": products,
+		"products": page_obj,
+		"page_obj": page_obj,
 		"categories": categories,
 		"selected_category": selected_category,
 		"search_query": search_query,

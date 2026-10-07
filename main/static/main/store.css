@@ -59,6 +59,9 @@ main { min-height: calc(100vh - 150px); }
 .icon-button:hover { color: white; border-color: var(--green); background: var(--green); }
 .stock-note { color: var(--muted); font-size: 12px; }
 .empty-state { grid-column: 1 / -1; padding: 40px 0; color: var(--muted); }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 38px; font-size: 12px; }
+.pagination a { color: var(--green); font-weight: 700; }
+.pagination .disabled { color: #9aa39c; }
 .breadcrumb { padding: 28px 7vw 0; display: flex; gap: 10px; color: var(--muted); font-size: 12px; }
 .detail-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .8fr); gap: 8vw; padding: 28px 11vw 88px; align-items: center; }
 .detail-image { aspect-ratio: 1 / 1.05; overflow: hidden; background: var(--soft-green); }

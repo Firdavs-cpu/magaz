@@ -41,6 +41,23 @@ class StorefrontTests(TestCase):
 
 		self.assertEqual(list(response.context["products"]), [])
 
+	def test_catalog_paginates_products(self):
+		Product.objects.bulk_create([
+			Product(
+				category=self.category,
+				name=f"Книга {index}",
+				price="100.00",
+				stock=1,
+			)
+			for index in range(12)
+		])
+
+		response = self.client.get(reverse("main:product_list"), {"page": "2"})
+
+		self.assertEqual(response.context["page_obj"].number, 2)
+		self.assertEqual(response.context["page_obj"].paginator.count, 13)
+		self.assertEqual(len(response.context["products"]), 1)
+
 	def test_catalog_hides_inactive_products(self):
 		self.product.is_active = False
 		self.product.save(update_fields=("is_active",))
