@@ -45,6 +45,8 @@ main { min-height: calc(100vh - 150px); }
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
 .section-heading h2, .order-summary h2 { margin: 0 0 14px; font-family: 'Playfair Display', Georgia, serif; font-size: 23px; font-weight: 500; }
 .section-heading span, .muted, .product-category { color: var(--muted); font-size: 12px; }
+.sort-form { display: flex; align-items: center; gap: 10px; margin: 0 0 22px; color: var(--muted); font-size: 12px; }
+.sort-form select { padding: 8px 10px; border: 1px solid var(--line); background: var(--white); color: var(--ink); }
 .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 20px; }
 .product-card { min-width: 0; }
 .product-image { display: grid; aspect-ratio: 4 / 4.7; place-items: center; overflow: hidden; background: #e6e9df; }

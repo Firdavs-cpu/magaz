@@ -19,12 +19,13 @@
             <label class="visually-hidden" for="search">Найти товар</label>
             <input id="search" type="search" name="q" value="{{ search_query }}" placeholder="Найти товар">
             {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+            {% if selected_sort != "name" %}<input type="hidden" name="sort" value="{{ selected_sort }}">{% endif %}
             <button class="text-button" type="submit">Найти</button>
         </form>
         <a class="category-link{% if not selected_category %} selected{% endif %}" href="{% url 'main:product_list' %}">Все товары</a>
         {% for category in categories %}
             <a class="category-link{% if selected_category == category.pk|stringformat:'s' %} selected{% endif %}"
-               href="?category={{ category.pk }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}">
+               href="?category={{ category.pk }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if selected_sort != 'name' %}&sort={{ selected_sort }}{% endif %}">
                 {{ category.name }}
             </a>
         {% empty %}
@@ -37,6 +38,17 @@
             <h2>{% if search_query %}Результаты поиска{% else %}В каталоге{% endif %}</h2>
             <span>{{ page_obj.paginator.count }} позиций</span>
         </div>
+        <form class="sort-form" method="get">
+            {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+            {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+            <label for="sort">Сортировка</label>
+            <select id="sort" name="sort">
+                <option value="name"{% if selected_sort == "name" %} selected{% endif %}>По названию</option>
+                <option value="price_asc"{% if selected_sort == "price_asc" %} selected{% endif %}>Сначала дешевле</option>
+                <option value="price_desc"{% if selected_sort == "price_desc" %} selected{% endif %}>Сначала дороже</option>
+            </select>
+            <button class="text-button" type="submit">Применить</button>
+        </form>
         <div class="product-grid">
             {% for product in products %}
                 <article class="product-card">
@@ -71,13 +83,13 @@
         {% if page_obj.has_other_pages %}
             <nav class="pagination" aria-label="Страницы каталога">
                 {% if page_obj.has_previous %}
-                    <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if search_query %}q={{ search_query|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>
+                    <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_sort != 'name' %}sort={{ selected_sort }}&{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>
                 {% else %}
                     <span class="disabled">Назад</span>
                 {% endif %}
                 <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
                 {% if page_obj.has_next %}
-                    <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if search_query %}q={{ search_query|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Вперёд</a>
+                    <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_sort != 'name' %}sort={{ selected_sort }}&{% endif %}page={{ page_obj.next_page_number }}">Вперёд</a>
                 {% else %}
                     <span class="disabled">Вперёд</span>
                 {% endif %}

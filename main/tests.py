@@ -58,6 +58,21 @@ class StorefrontTests(TestCase):
 		self.assertEqual(response.context["page_obj"].paginator.count, 13)
 		self.assertEqual(len(response.context["products"]), 1)
 
+	def test_catalog_can_sort_by_price(self):
+		cheaper_product = Product.objects.create(
+			category=self.category,
+			name="Карманный атлас",
+			price="500.00",
+			stock=2,
+		)
+
+		response = self.client.get(
+			reverse("main:product_list"),
+			{"sort": "price_asc"},
+		)
+
+		self.assertEqual(response.context["products"][0], cheaper_product)
+
 	def test_catalog_hides_inactive_products(self):
 		self.product.is_active = False
 		self.product.save(update_fields=("is_active",))

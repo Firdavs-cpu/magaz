@@ -16,6 +16,7 @@ def product_list(request):
 	categories = Category.objects.all()
 	selected_category = request.GET.get("category", "")
 	search_query = request.GET.get("q", "").strip()
+	selected_sort = request.GET.get("sort", "name")
 
 	if selected_category:
 		if selected_category.isdigit():
@@ -28,6 +29,12 @@ def product_list(request):
 			| Q(description__icontains=search_query)
 			| Q(category__name__icontains=search_query)
 		)
+	sort_fields = {
+		"name": "name",
+		"price_asc": "price",
+		"price_desc": "-price",
+	}
+	products = products.order_by(sort_fields.get(selected_sort, "name"))
 	page_obj = Paginator(products, 12).get_page(request.GET.get("page"))
 
 	return render(request, "main/product_list.html", {
@@ -36,6 +43,7 @@ def product_list(request):
 		"categories": categories,
 		"selected_category": selected_category,
 		"search_query": search_query,
+		"selected_sort": selected_sort if selected_sort in sort_fields else "name",
 	})
 
 
