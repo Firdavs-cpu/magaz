@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
@@ -249,6 +250,22 @@ class StorefrontTests(TestCase):
 			email="anna@example.com",
 			shipping_address="Москва",
 		)
+
+		response = self.client.get(reverse("main:order_success", args=[order.pk]))
+
+		self.assertEqual(response.status_code, 404)
+
+	def test_authenticated_user_cannot_open_guest_order(self):
+		order = Order.objects.create(
+			customer_name="Анна",
+			email="anna@example.com",
+			shipping_address="Москва",
+		)
+		user = get_user_model().objects.create_user(
+			username="buyer",
+			password="test-password",
+		)
+		self.client.force_login(user)
 
 		response = self.client.get(reverse("main:order_success", args=[order.pk]))
 
