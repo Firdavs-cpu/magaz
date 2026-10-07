@@ -163,6 +163,15 @@ class StorefrontTests(TestCase):
 		self.assertRedirects(response, reverse("main:cart"))
 		self.assertEqual(self.client.session["cart"], {})
 
+	def test_navigation_shows_cart_quantity(self):
+		session = self.client.session
+		session["cart"] = {str(self.product.pk): 3}
+		session.save()
+
+		response = self.client.get(reverse("main:product_list"))
+
+		self.assertContains(response, '<span class="cart-count">3</span>', html=True)
+
 	def test_cart_recovers_from_invalid_session_structure(self):
 		session = self.client.session
 		session["cart"] = [str(self.product.pk)]

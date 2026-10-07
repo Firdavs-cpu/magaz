@@ -27,6 +27,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .site-nav { display: flex; align-items: center; gap: 34px; font-size: 13px; font-weight: 600; }
 .site-nav a:hover, .back-link:hover, .breadcrumb a:hover { color: var(--coral); }
 .site-nav .admin-link { color: var(--muted); font-weight: 400; }
+.cart-count { display: inline-grid; min-width: 19px; height: 19px; margin-left: 6px; padding: 0 5px; place-items: center; border-radius: 50%; color: white; background: var(--green); font-size: 10px; }
 main { min-height: calc(100vh - 150px); }
 .catalog-intro { min-height: 340px; padding: 44px 7vw; display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .85fr); gap: 52px; align-items: center; background: var(--soft-green); }
 .catalog-intro-copy { max-width: 580px; }
