@@ -138,6 +138,31 @@ class StorefrontTests(TestCase):
 		)
 		self.assertEqual(len(list(response.wsgi_request._messages)), 1)
 
+	def test_cart_update_caps_quantity_at_stock(self):
+		response = self.client.post(
+			reverse("main:cart_update", args=[self.product.pk]),
+			{"quantity": "100"},
+		)
+
+		self.assertRedirects(response, reverse("main:cart"))
+		self.assertEqual(
+			self.client.session["cart"][str(self.product.pk)],
+			self.product.stock,
+		)
+
+	def test_cart_update_zero_removes_product(self):
+		session = self.client.session
+		session["cart"] = {str(self.product.pk): 2}
+		session.save()
+
+		response = self.client.post(
+			reverse("main:cart_update", args=[self.product.pk]),
+			{"quantity": "0"},
+		)
+
+		self.assertRedirects(response, reverse("main:cart"))
+		self.assertEqual(self.client.session["cart"], {})
+
 	def test_cart_recovers_from_invalid_session_structure(self):
 		session = self.client.session
 		session["cart"] = [str(self.product.pk)]
