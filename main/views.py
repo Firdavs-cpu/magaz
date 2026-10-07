@@ -16,8 +16,11 @@ def product_list(request):
 	selected_category = request.GET.get("category", "")
 	search_query = request.GET.get("q", "").strip()
 
-	if selected_category.isdigit():
-		products = products.filter(category_id=int(selected_category))
+	if selected_category:
+		if selected_category.isdigit():
+			products = products.filter(category_id=int(selected_category))
+		else:
+			products = products.none()
 	if search_query:
 		products = products.filter(
 			Q(name__icontains=search_query)

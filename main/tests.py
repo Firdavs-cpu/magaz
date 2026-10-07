@@ -33,6 +33,14 @@ class StorefrontTests(TestCase):
 
 		self.assertEqual(list(response.context["products"]), [self.product])
 
+	def test_invalid_category_filter_does_not_show_all_products(self):
+		response = self.client.get(
+			reverse("main:product_list"),
+			{"category": "unknown"},
+		)
+
+		self.assertEqual(list(response.context["products"]), [])
+
 	def test_catalog_hides_inactive_products(self):
 		self.product.is_active = False
 		self.product.save(update_fields=("is_active",))
