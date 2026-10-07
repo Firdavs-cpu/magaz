@@ -15,8 +15,20 @@ def _session_cart(request):
 	cart = request.session.get("cart", {})
 	if not isinstance(cart, dict):
 		cart = {}
-		request.session["cart"] = cart
-	return cart
+
+	normalized_cart = {}
+	for product_id, quantity in cart.items():
+		try:
+			product_id = int(product_id)
+			quantity = int(quantity)
+		except (TypeError, ValueError):
+			continue
+		if product_id > 0 and quantity > 0:
+			normalized_cart[str(product_id)] = quantity
+
+	if normalized_cart != cart:
+		request.session["cart"] = normalized_cart
+	return normalized_cart
 
 
 def product_list(request):
