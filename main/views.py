@@ -15,6 +15,7 @@ def _session_cart(request):
 	cart = request.session.get("cart", {})
 	if not isinstance(cart, dict):
 		cart = {}
+		request.session["cart"] = cart
 
 	normalized_cart = {}
 	for product_id, quantity in cart.items():
