@@ -133,6 +133,20 @@ class StorefrontTests(TestCase):
 		self.assertEqual(Order.objects.count(), 0)
 		self.assertEqual(self.client.session["cart"], {str(self.product.pk): 2})
 
+	def test_checkout_rejects_invalid_email_without_creating_order(self):
+		self.client.post(reverse("main:cart_add", args=[self.product.pk]))
+
+		response = self.client.post(reverse("main:checkout"), {
+			"customer_name": "Анна",
+			"email": "not-an-email",
+			"phone": "",
+			"shipping_address": "Москва",
+		})
+
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("email", response.context["form"].errors)
+		self.assertEqual(Order.objects.count(), 0)
+
 	def test_add_to_cart_does_not_redirect_to_external_url(self):
 		response = self.client.post(
 			reverse("main:cart_add", args=[self.product.pk]),
