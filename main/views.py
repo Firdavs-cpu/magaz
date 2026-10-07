@@ -22,6 +22,7 @@ def product_list(request):
 		products = products.filter(
 			Q(name__icontains=search_query)
 			| Q(description__icontains=search_query)
+			| Q(category__name__icontains=search_query)
 		)
 
 	return render(request, "main/product_list.html", {
