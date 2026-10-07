@@ -55,6 +55,9 @@ class OrderAdmin(admin.ModelAdmin):
 	inlines = (OrderItemInline,)
 	actions = ("mark_paid", "mark_shipped")
 
+	def get_queryset(self, request):
+		return super().get_queryset(request).prefetch_related("items")
+
 	@admin.action(description="Отметить выбранные заказы оплаченными")
 	def mark_paid(self, request, queryset):
 		updated_count = queryset.update(

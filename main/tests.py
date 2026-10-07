@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -324,3 +326,30 @@ class StorefrontTests(TestCase):
 		order.refresh_from_db()
 		self.assertEqual(order.status, Order.Status.PAID)
 		self.assertEqual(response.status_code, 302)
+
+	def test_order_admin_prefetches_items_for_totals(self):
+		order = Order.objects.create(
+			customer_name="Анна",
+			email="anna@example.com",
+			shipping_address="Москва",
+		)
+		OrderItem.objects.create(
+			order=order,
+			product=self.product,
+			product_name=self.product.name,
+			price=self.product.price,
+			quantity=2,
+		)
+		admin_user = get_user_model().objects.create_superuser(
+			username="admin",
+			password="test-password",
+			email="admin@example.com",
+		)
+		self.client.force_login(admin_user)
+
+		response = self.client.get(reverse("admin:main_order_changelist"))
+		orders = response.context["cl"].result_list
+
+		with self.assertNumQueries(0):
+			totals = [listed_order.total for listed_order in orders]
+		self.assertEqual(totals, [Decimal("2400.00")])
