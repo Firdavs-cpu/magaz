@@ -1,0 +1,16 @@
+{% extends "main/base.html" %}
+{% block title %}Заказ принят — Лавка{% endblock %}
+{% block content %}
+<section class="success-page">
+    <p class="eyebrow">Заказ №{{ order.pk }}</p>
+    <h1>Спасибо, {{ order.customer_name }}.</h1>
+    <p class="success-note">Заказ принят. Контактные данные сохранены, мы свяжемся с вами для подтверждения.</p>
+    <div class="success-items">
+        {% for item in order.items.all %}
+            <p><span>{{ item.product_name }} × {{ item.quantity }}</span><strong>{{ item.subtotal }} ₽</strong></p>
+        {% endfor %}
+        <p class="summary-total"><span>Итого</span><strong>{{ order.total }} ₽</strong></p>
+    </div>
+    <a class="primary-button" href="{% url 'main:product_list' %}">Вернуться в каталог <span aria-hidden="true">→</span></a>
+</section>
+{% endblock %}

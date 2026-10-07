@@ -1,0 +1,30 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Лавка{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'main/store.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <a class="wordmark" href="{% url 'main:product_list' %}">Лавка<span>.</span></a>
+        <nav class="site-nav" aria-label="Основная навигация">
+            <a href="{% url 'main:product_list' %}">Каталог</a>
+            <a href="{% url 'main:cart' %}">Корзина</a>
+            {% if request.user.is_staff %}<a class="admin-link" href="{% url 'admin:index' %}">Управление</a>{% endif %}
+        </nav>
+    </header>
+    {% if messages %}
+        <div class="messages" role="status">
+            {% for message in messages %}<p class="message {{ message.tags }}">{{ message }}</p>{% endfor %}
+        </div>
+    {% endif %}
+    <main>{% block content %}{% endblock %}</main>
+    <footer class="site-footer">
+        <span>Лавка, 2026</span>
+        <a href="{% url 'main:product_list' %}">Вернуться к покупкам</a>
+    </footer>
+</body>
+</html>

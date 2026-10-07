@@ -1,0 +1,29 @@
+{% extends "main/base.html" %}
+{% block title %}Оформление заказа — Лавка{% endblock %}
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Последний шаг</p>
+    <h1>Оформление заказа</h1>
+</section>
+<section class="checkout-layout">
+    <form class="checkout-form" method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+        {% endfor %}
+        <button class="primary-button" type="submit">Подтвердить заказ <span aria-hidden="true">→</span></button>
+    </form>
+    <aside class="order-summary">
+        <h2>Ваш заказ</h2>
+        {% for item in items %}
+            <p><span>{{ item.product.name }} × {{ item.quantity }}</span><strong>{{ item.subtotal }} ₽</strong></p>
+        {% endfor %}
+        <p class="summary-total"><span>К оплате</span><strong>{{ total }} ₽</strong></p>
+    </aside>
+</section>
+{% endblock %}

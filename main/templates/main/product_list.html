@@ -1,0 +1,73 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}Каталог — Лавка{% endblock %}
+{% block content %}
+<section class="catalog-intro">
+    <div class="catalog-intro-copy">
+        <p class="eyebrow">Небольшой магазин хороших вещей</p>
+        <h1>Вещи, к которым<br>хочется возвращаться.</h1>
+        <p class="intro-note">Выбрали полезное и красивое. Остальное оставили за дверью.</p>
+    </div>
+    <div class="catalog-photo">
+        <img src="{% static 'main/images/shop-interior.jpg' %}" alt="Интерьер небольшого магазина с витринами товаров" fetchpriority="high">
+    </div>
+</section>
+
+<section class="catalog" aria-label="Каталог товаров">
+    <aside class="catalog-tools">
+        <form class="search-form" method="get">
+            <label class="visually-hidden" for="search">Найти товар</label>
+            <input id="search" type="search" name="q" value="{{ search_query }}" placeholder="Найти товар">
+            {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+            <button class="text-button" type="submit">Найти</button>
+        </form>
+        <a class="category-link{% if not selected_category %} selected{% endif %}" href="{% url 'main:product_list' %}">Все товары</a>
+        {% for category in categories %}
+            <a class="category-link{% if selected_category == category.pk|stringformat:'s' %} selected{% endif %}"
+               href="?category={{ category.pk }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}">
+                {{ category.name }}
+            </a>
+        {% empty %}
+            <p class="muted">Категорий пока нет.</p>
+        {% endfor %}
+    </aside>
+
+    <div class="product-area">
+        <div class="section-heading">
+            <h2>{% if search_query %}Результаты поиска{% else %}В каталоге{% endif %}</h2>
+            <span>{{ products|length }} позиций</span>
+        </div>
+        <div class="product-grid">
+            {% for product in products %}
+                <article class="product-card">
+                    <a class="product-image" href="{% url 'main:product_detail' product.pk %}">
+                        {% if product.image_url %}
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+                        {% else %}
+                            <span class="image-placeholder">{{ product.name|first|upper }}</span>
+                        {% endif %}
+                    </a>
+                    <div class="product-card-copy">
+                        <p class="product-category">{{ product.category|default:"Без категории" }}</p>
+                        <h3><a href="{% url 'main:product_detail' product.pk %}">{{ product.name }}</a></h3>
+                        <div class="product-card-bottom">
+                            <span class="price">{{ product.price }} ₽</span>
+                            {% if product.stock %}
+                                <form method="post" action="{% url 'main:cart_add' product.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                    <button class="icon-button add-button" type="submit" aria-label="Добавить {{ product.name }} в корзину" title="Добавить в корзину">+</button>
+                                </form>
+                            {% else %}
+                                <span class="stock-note">Нет в наличии</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="empty-state">Ничего не нашлось. Попробуйте изменить запрос или категорию.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

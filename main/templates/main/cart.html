@@ -1,0 +1,48 @@
+{% extends "main/base.html" %}
+{% block title %}Корзина — Лавка{% endblock %}
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">Почти ваше</p>
+    <h1>Корзина</h1>
+</section>
+{% if items %}
+    <section class="cart-layout">
+        <div class="cart-lines">
+            {% for item in items %}
+                <article class="cart-line">
+                    <a class="cart-thumb" href="{% url 'main:product_detail' item.product.pk %}">
+                        {% if item.product.image_url %}<img src="{{ item.product.image_url }}" alt="">
+                        {% else %}<span>{{ item.product.name|first|upper }}</span>{% endif %}
+                    </a>
+                    <div class="cart-product">
+                        <a href="{% url 'main:product_detail' item.product.pk %}">{{ item.product.name }}</a>
+                        <span class="muted">{{ item.product.price }} ₽ за штуку</span>
+                    </div>
+                    <form class="quantity-form" method="post" action="{% url 'main:cart_update' item.product.pk %}">
+                        {% csrf_token %}
+                        <label class="visually-hidden" for="quantity-{{ item.product.pk }}">Количество {{ item.product.name }}</label>
+                        <input id="quantity-{{ item.product.pk }}" type="number" name="quantity" min="0" max="{{ item.product.stock }}" value="{{ item.quantity }}">
+                        <button class="text-button" type="submit">Обновить</button>
+                    </form>
+                    <strong class="line-total">{{ item.subtotal }} ₽</strong>
+                    <form method="post" action="{% url 'main:cart_update' item.product.pk %}">
+                        {% csrf_token %}<input type="hidden" name="quantity" value="0">
+                        <button class="remove-button" type="submit" aria-label="Убрать {{ item.product.name }}" title="Убрать товар">×</button>
+                    </form>
+                </article>
+            {% endfor %}
+        </div>
+        <aside class="order-summary">
+            <h2>Итого</h2>
+            <p><span>{{ items|length }} наименований</span><strong>{{ total }} ₽</strong></p>
+            <a class="primary-button full-button" href="{% url 'main:checkout' %}">Оформить заказ <span aria-hidden="true">→</span></a>
+            <a class="back-link" href="{% url 'main:product_list' %}">Продолжить покупки</a>
+        </aside>
+    </section>
+{% else %}
+    <section class="empty-cart">
+        <p>Здесь пока ничего нет.</p>
+        <a class="primary-button" href="{% url 'main:product_list' %}">Перейти в каталог <span aria-hidden="true">→</span></a>
+    </section>
+{% endif %}
+{% endblock %}
