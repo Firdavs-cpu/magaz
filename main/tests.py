@@ -270,3 +270,17 @@ class StorefrontTests(TestCase):
 		response = self.client.get(reverse("main:order_success", args=[order.pk]))
 
 		self.assertEqual(response.status_code, 404)
+
+	def test_category_admin_shows_product_count(self):
+		admin_user = get_user_model().objects.create_superuser(
+			username="admin",
+			password="test-password",
+			email="admin@example.com",
+		)
+		self.client.force_login(admin_user)
+
+		response = self.client.get(reverse("admin:main_category_changelist"))
+
+		self.assertContains(response, "Количество товаров")
+		self.assertContains(response, "Книги")
+		self.assertEqual(response.context["cl"].result_list[0].product_count, 1)

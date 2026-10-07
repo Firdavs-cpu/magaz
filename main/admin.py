@@ -1,11 +1,20 @@
 from django.contrib import admin
+from django.db.models import Count
 
 from .models import Category, Order, OrderItem, Product
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+	list_display = ("name", "product_count")
 	search_fields = ("name",)
+
+	@admin.display(description="Количество товаров")
+	def product_count(self, category):
+		return category.product_count
+
+	def get_queryset(self, request):
+		return super().get_queryset(request).annotate(product_count=Count("products"))
 
 
 @admin.register(Product)
