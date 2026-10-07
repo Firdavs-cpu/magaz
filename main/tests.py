@@ -298,3 +298,29 @@ class StorefrontTests(TestCase):
 		response = self.client.get(reverse("admin:main_product_changelist"))
 
 		self.assertContains(response, '<img src="https://example.com/atlas.jpg"', html=False)
+
+	def test_order_admin_can_mark_orders_paid(self):
+		order = Order.objects.create(
+			customer_name="Анна",
+			email="anna@example.com",
+			shipping_address="Москва",
+		)
+		admin_user = get_user_model().objects.create_superuser(
+			username="admin",
+			password="test-password",
+			email="admin@example.com",
+		)
+		self.client.force_login(admin_user)
+
+		response = self.client.post(
+			reverse("admin:main_order_changelist"),
+			{
+				"action": "mark_paid",
+				"_selected_action": [str(order.pk)],
+				"index": 0,
+			},
+		)
+
+		order.refresh_from_db()
+		self.assertEqual(order.status, Order.Status.PAID)
+		self.assertEqual(response.status_code, 302)

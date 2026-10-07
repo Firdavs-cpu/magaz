@@ -1,6 +1,7 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models import Count
 from django.utils.html import format_html
+from django.utils import timezone
 
 from .models import Category, Order, OrderItem, Product
 
@@ -52,3 +53,28 @@ class OrderAdmin(admin.ModelAdmin):
 	search_fields = ("customer_name", "email", "phone")
 	readonly_fields = ("created_at", "updated_at", "total")
 	inlines = (OrderItemInline,)
+	actions = ("mark_paid", "mark_shipped")
+
+	@admin.action(description="Отметить выбранные заказы оплаченными")
+	def mark_paid(self, request, queryset):
+		updated_count = queryset.update(
+			status=Order.Status.PAID,
+			updated_at=timezone.now(),
+		)
+		self.message_user(
+			request,
+			f"Заказов отмечено оплаченными: {updated_count}.",
+			messages.SUCCESS,
+		)
+
+	@admin.action(description="Отметить выбранные заказы отправленными")
+	def mark_shipped(self, request, queryset):
+		updated_count = queryset.update(
+			status=Order.Status.SHIPPED,
+			updated_at=timezone.now(),
+		)
+		self.message_user(
+			request,
+			f"Заказов отмечено отправленными: {updated_count}.",
+			messages.SUCCESS,
+		)
