@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.db.models import Count
+from django.utils.html import format_html
 
 from .models import Category, Order, OrderItem, Product
 
@@ -19,11 +20,22 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-	list_display = ("name", "category", "price", "stock", "is_active")
+	list_display = ("image_preview", "name", "category", "price", "stock", "is_active")
 	list_filter = ("is_active", "category")
 	list_editable = ("price", "stock", "is_active")
 	search_fields = ("name", "description")
 	list_select_related = ("category",)
+	readonly_fields = ("image_preview",)
+
+	@admin.display(description="Фото")
+	def image_preview(self, product):
+		if not product.image_url:
+			return "Нет фото"
+		return format_html(
+			'<img src="{}" alt="{}" style="width: 56px; height: 56px; object-fit: cover;">',
+			product.image_url,
+			product.name,
+		)
 
 
 class OrderItemInline(admin.TabularInline):

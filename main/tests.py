@@ -284,3 +284,17 @@ class StorefrontTests(TestCase):
 		self.assertContains(response, "Количество товаров")
 		self.assertContains(response, "Книги")
 		self.assertEqual(response.context["cl"].result_list[0].product_count, 1)
+
+	def test_product_admin_shows_image_preview(self):
+		self.product.image_url = "https://example.com/atlas.jpg"
+		self.product.save(update_fields=("image_url",))
+		admin_user = get_user_model().objects.create_superuser(
+			username="admin",
+			password="test-password",
+			email="admin@example.com",
+		)
+		self.client.force_login(admin_user)
+
+		response = self.client.get(reverse("admin:main_product_changelist"))
+
+		self.assertContains(response, '<img src="https://example.com/atlas.jpg"', html=False)
