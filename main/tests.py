@@ -20,6 +20,25 @@ class StorefrontTests(TestCase):
 		self.assertContains(response, "Атлас")
 		self.assertEqual(list(response.context["products"]), [self.product])
 
+	def test_catalog_hides_inactive_products(self):
+		self.product.is_active = False
+		self.product.save(update_fields=("is_active",))
+
+		response = self.client.get(reverse("main:product_list"))
+
+		self.assertNotContains(response, "Атлас")
+		self.assertEqual(list(response.context["products"]), [])
+
+	def test_inactive_product_page_returns_not_found(self):
+		self.product.is_active = False
+		self.product.save(update_fields=("is_active",))
+
+		response = self.client.get(
+			reverse("main:product_detail", args=[self.product.pk]),
+		)
+
+		self.assertEqual(response.status_code, 404)
+
 	def test_checkout_creates_order_and_decrements_stock(self):
 		self.client.post(reverse("main:cart_add", args=[self.product.pk]))
 
