@@ -20,6 +20,14 @@ class StorefrontTests(TestCase):
 		self.assertContains(response, "Атлас")
 		self.assertEqual(list(response.context["products"]), [self.product])
 
+	def test_catalog_search_matches_product_description(self):
+		self.product.description = "Издание с картой горных маршрутов"
+		self.product.save(update_fields=("description",))
+
+		response = self.client.get(reverse("main:product_list"), {"q": "горных"})
+
+		self.assertEqual(list(response.context["products"]), [self.product])
+
 	def test_catalog_hides_inactive_products(self):
 		self.product.is_active = False
 		self.product.save(update_fields=("is_active",))

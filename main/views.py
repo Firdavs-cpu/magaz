@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.db import transaction
 from django.http import Http404
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
@@ -18,7 +19,10 @@ def product_list(request):
 	if selected_category.isdigit():
 		products = products.filter(category_id=int(selected_category))
 	if search_query:
-		products = products.filter(name__icontains=search_query)
+		products = products.filter(
+			Q(name__icontains=search_query)
+			| Q(description__icontains=search_query)
+		)
 
 	return render(request, "main/product_list.html", {
 		"products": products,
