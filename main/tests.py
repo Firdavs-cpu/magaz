@@ -172,6 +172,24 @@ class StorefrontTests(TestCase):
 
 		self.assertContains(response, '<span class="cart-count">3</span>', html=True)
 
+	def test_cart_summary_counts_units(self):
+		second_product = Product.objects.create(
+			category=self.category,
+			name="Глобус",
+			price="700.00",
+			stock=4,
+		)
+		session = self.client.session
+		session["cart"] = {
+			str(self.product.pk): 2,
+			str(second_product.pk): 1,
+		}
+		session.save()
+
+		response = self.client.get(reverse("main:cart"))
+
+		self.assertContains(response, "3 шт.")
+
 	def test_cart_recovers_from_invalid_session_structure(self):
 		session = self.client.session
 		session["cart"] = [str(self.product.pk)]

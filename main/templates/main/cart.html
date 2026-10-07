@@ -34,7 +34,7 @@
         </div>
         <aside class="order-summary">
             <h2>Итого</h2>
-            <p><span>{{ items|length }} наименований</span><strong>{{ total }} ₽</strong></p>
+            <p><span>{{ cart_item_count }} шт.</span><strong>{{ total }} ₽</strong></p>
             <a class="primary-button full-button" href="{% url 'main:checkout' %}">Оформить заказ <span aria-hidden="true">→</span></a>
             <a class="back-link" href="{% url 'main:product_list' %}">Продолжить покупки</a>
         </aside>
