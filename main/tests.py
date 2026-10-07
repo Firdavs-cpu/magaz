@@ -116,6 +116,23 @@ class StorefrontTests(TestCase):
 		self.assertEqual(self.product.stock, 4)
 		self.assertEqual(self.client.session["cart"], {})
 
+	def test_checkout_requires_confirmation_after_stock_changes(self):
+		session = self.client.session
+		session["cart"] = {str(self.product.pk): 4}
+		session.save()
+		self.product.stock = 2
+		self.product.save(update_fields=("stock",))
+
+		response = self.client.post(reverse("main:checkout"), {
+			"customer_name": "Анна",
+			"email": "anna@example.com",
+			"shipping_address": "Москва",
+		})
+
+		self.assertRedirects(response, reverse("main:cart"))
+		self.assertEqual(Order.objects.count(), 0)
+		self.assertEqual(self.client.session["cart"], {str(self.product.pk): 2})
+
 	def test_add_to_cart_does_not_redirect_to_external_url(self):
 		response = self.client.post(
 			reverse("main:cart_add", args=[self.product.pk]),

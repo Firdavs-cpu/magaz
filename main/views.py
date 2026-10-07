@@ -81,6 +81,7 @@ def _cart_items(request):
 	products = Product.objects.filter(pk__in=cart.keys(), is_active=True)
 	items = []
 	cleaned_cart = {}
+	stock_changed = False
 
 	for product in products:
 		try:
@@ -88,6 +89,8 @@ def _cart_items(request):
 		except (TypeError, ValueError):
 			continue
 		quantity = min(max(quantity, 0), product.stock)
+		if quantity != int(cart.get(str(product.pk), 0)):
+			stock_changed = True
 		if quantity:
 			cleaned_cart[str(product.pk)] = quantity
 			items.append({
@@ -98,13 +101,15 @@ def _cart_items(request):
 
 	if cleaned_cart != cart:
 		request.session["cart"] = cleaned_cart
+		stock_changed = True
+		messages.warning(request, "Состав корзины изменился: проверьте наличие и количество товаров.")
 
 	total = sum((item["subtotal"] for item in items), start=0)
-	return items, total
+	return items, total, stock_changed
 
 
 def cart_detail(request):
-	items, total = _cart_items(request)
+	items, total, _ = _cart_items(request)
 	return render(request, "main/cart.html", {"items": items, "total": total})
 
 
@@ -155,9 +160,11 @@ def cart_update(request, product_id):
 
 
 def checkout(request):
-	items, total = _cart_items(request)
+	items, total, stock_changed = _cart_items(request)
 	if not items:
 		messages.info(request, "Корзина пуста.")
+		return redirect("main:cart")
+	if request.method == "POST" and stock_changed:
 		return redirect("main:cart")
 
 	form = CheckoutForm(request.POST or None)
