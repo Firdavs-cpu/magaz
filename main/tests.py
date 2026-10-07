@@ -124,6 +124,20 @@ class StorefrontTests(TestCase):
 
 		self.assertRedirects(response, reverse("main:cart"))
 
+	def test_add_to_cart_does_not_exceed_stock(self):
+		session = self.client.session
+		session["cart"] = {str(self.product.pk): self.product.stock}
+		session.save()
+
+		response = self.client.post(reverse("main:cart_add", args=[self.product.pk]))
+
+		self.assertRedirects(response, reverse("main:cart"))
+		self.assertEqual(
+			self.client.session["cart"][str(self.product.pk)],
+			self.product.stock,
+		)
+		self.assertEqual(len(list(response.wsgi_request._messages)), 1)
+
 	def test_cart_recovers_from_invalid_session_structure(self):
 		session = self.client.session
 		session["cart"] = [str(self.product.pk)]

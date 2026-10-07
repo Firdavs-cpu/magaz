@@ -116,8 +116,10 @@ def cart_add(request, product_id):
 
 	if product.stock == 0:
 		messages.error(request, "Этого товара сейчас нет в наличии.")
+	elif current_quantity >= product.stock:
+		messages.warning(request, "В корзине уже всё доступное количество этого товара.")
 	else:
-		cart[str(product.pk)] = min(current_quantity + 1, product.stock)
+		cart[str(product.pk)] = current_quantity + 1
 		request.session["cart"] = cart
 		messages.success(request, "Товар добавлен в корзину.")
 
