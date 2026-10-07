@@ -11,6 +11,14 @@ from .forms import CheckoutForm
 from .models import Category, Order, OrderItem, Product
 
 
+def _session_cart(request):
+	cart = request.session.get("cart", {})
+	if not isinstance(cart, dict):
+		cart = {}
+		request.session["cart"] = cart
+	return cart
+
+
 def product_list(request):
 	products = Product.objects.filter(is_active=True).select_related("category")
 	categories = Category.objects.all()
@@ -57,7 +65,7 @@ def product_detail(request, product_id):
 
 
 def _cart_items(request):
-	cart = request.session.get("cart", {})
+	cart = _session_cart(request)
 	products = Product.objects.filter(pk__in=cart.keys(), is_active=True)
 	items = []
 	cleaned_cart = {}
@@ -91,7 +99,7 @@ def cart_detail(request):
 @require_POST
 def cart_add(request, product_id):
 	product = get_object_or_404(Product, pk=product_id, is_active=True)
-	cart = request.session.get("cart", {})
+	cart = _session_cart(request)
 	current_quantity = int(cart.get(str(product.pk), 0))
 
 	if product.stock == 0:
@@ -113,7 +121,7 @@ def cart_add(request, product_id):
 
 @require_POST
 def cart_update(request, product_id):
-	cart = request.session.get("cart", {})
+	cart = _session_cart(request)
 	product = Product.objects.filter(pk=product_id, is_active=True).first()
 
 	try:
@@ -140,7 +148,7 @@ def checkout(request):
 
 	form = CheckoutForm(request.POST or None)
 	if request.method == "POST" and form.is_valid():
-		cart = request.session.get("cart", {})
+		cart = _session_cart(request)
 		quantities = {int(product_id): int(quantity) for product_id, quantity in cart.items()}
 
 		with transaction.atomic():

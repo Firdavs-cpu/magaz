@@ -124,6 +124,17 @@ class StorefrontTests(TestCase):
 
 		self.assertRedirects(response, reverse("main:cart"))
 
+	def test_cart_recovers_from_invalid_session_structure(self):
+		session = self.client.session
+		session["cart"] = [str(self.product.pk)]
+		session.save()
+
+		response = self.client.get(reverse("main:cart"))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.context["items"], [])
+		self.assertEqual(self.client.session["cart"], {})
+
 	def test_order_confirmation_requires_the_checkout_session(self):
 		order = Order.objects.create(
 			customer_name="Анна",
